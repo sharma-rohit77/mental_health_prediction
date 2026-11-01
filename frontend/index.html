@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MindMetric – Mental Wellness Score Predictor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@0.263.1/dist/umd/lucide.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.min.js';s.onload=function(){window.lucide&&lucide.createIcons()};document.head.appendChild(s)"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<header class="nav glass">
+  <a class="brand" href="#" data-go="landing"><i data-lucide="brain-circuit"></i>MindMetric</a>
+  <button class="btn btn-sm" data-go="form">Start prediction</button>
+</header>
+
+<main>
+  <!-- 1. Landing -->
+  <section id="landing" class="view active">
+    <div class="hero">
+      <div class="hero-text">
+        <span class="pill"><i data-lucide="sparkles"></i>Machine-learning wellness insights</span>
+        <h1>Understand how your daily habits shape your mental wellbeing.</h1>
+        <p>Share 12 details about screen time, sleep, study and activity. Our trained model estimates a wellness score and suggests small changes that help.</p>
+        <div class="row">
+          <button class="btn" data-go="form"><i data-lucide="play"></i>Start prediction</button>
+          <a class="btn btn-ghost" href="#features" id="learn">See how it works</a>
+        </div>
+      </div>
+      <div class="stage" aria-hidden="true">
+        <span class="chip c1"><i data-lucide="moon"></i>Sleep 7.5h</span>
+        <span class="chip c2"><i data-lucide="footprints"></i>Activity 1.5h</span>
+        <span class="chip c3"><i data-lucide="smartphone"></i>Screen 3h</span>
+        <div class="ring mini"><svg viewBox="0 0 120 120"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#38a8ff"/></linearGradient></defs><circle class="track" cx="60" cy="60" r="52"/><circle class="arc" cx="60" cy="60" r="52" style="stroke-dashoffset:50"/></svg><div><b>8.5</b><small>wellness score</small></div></div>
+        <span class="badge s-excellent">Excellent</span>
+      </div>
+    </div>
+    <div id="features" class="features">
+      <article class="glass"><i data-lucide="sliders-horizontal"></i><h3>Guided inputs</h3><p>Sliders and dropdowns with clear hints, validated before anything is sent.</p></article>
+      <article class="glass"><i data-lucide="gauge"></i><h3>Instant score</h3><p>Your inputs go to the prediction API and return a score with a status in seconds.</p></article>
+      <article class="glass"><i data-lucide="heart-handshake"></i><h3>Practical advice</h3><p>Recommendations tailored to your result and to the habits you entered.</p></article>
+    </div>
+    <p class="disclaimer"><i data-lucide="shield-alert"></i>MindMetric is an educational tool, not a medical diagnosis. If you are struggling, please talk to a qualified professional.</p>
+  </section>
+
+  <!-- 2. Form -->
+  <section id="form" class="view">
+    <div class="head"><h2>Your details</h2><p>Answer honestly. Nothing is stored by this page.</p></div>
+    <div class="progress"><span id="bar"></span></div>
+    <form id="predictForm" novalidate></form>
+    <div id="formError" class="alert" role="alert" hidden></div>
+    <div class="row end">
+      <button type="button" class="btn btn-ghost" id="resetBtn"><i data-lucide="rotate-ccw"></i>Reset form</button>
+      <button type="submit" form="predictForm" class="btn"><i data-lucide="wand-sparkles"></i>Predict my score</button>
+    </div>
+  </section>
+
+  <!-- 3. Loading -->
+  <section id="loading" class="view center">
+    <div class="orb"><i></i><i></i><i data-lucide="brain-circuit"></i></div>
+    <h2>Analysing your habits…</h2>
+    <p id="loadMsg">Preparing your data</p>
+  </section>
+
+  <!-- 4. Results -->
+  <section id="result" class="view">
+    <div class="res-grid">
+      <div class="glass res-card" id="resCard">
+        <div class="ring"><svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="52"/><circle class="arc" id="arc" cx="60" cy="60" r="52"/></svg><div><b id="score">0.0</b><small>/ 10</small></div></div>
+        <span class="badge" id="status">–</span>
+        <p id="statusText"></p>
+      </div>
+      <div class="glass"><h3><i data-lucide="lightbulb"></i>Personalised recommendations</h3><ul id="recs" class="recs"></ul></div>
+      <div class="glass wide"><h3><i data-lucide="clipboard-list"></i>Input summary</h3><dl id="summary" class="summary"></dl></div>
+    </div>
+    <div class="row end">
+      <button class="btn btn-ghost" id="editBtn"><i data-lucide="pencil"></i>Edit answers</button>
+      <button class="btn" id="againBtn"><i data-lucide="refresh-cw"></i>Predict again</button>
+    </div>
+    <p class="disclaimer"><i data-lucide="shield-alert"></i>This score is a statistical estimate, not a medical diagnosis or professional advice.</p>
+  </section>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
