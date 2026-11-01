@@ -7,7 +7,7 @@
 
 /* ---------- 1. CONFIG ----------
    Dropdown values match the FastAPI `StudentData` schema (Literal types). */
-const API_URL = 'http://127.0.0.1:8000/predict';
+const API_URL = 'https://mental-health-prediction-62do.onrender.com/predict';
 
 const SECTIONS = [
   { title: 'About you', icon: 'user', fields: [
