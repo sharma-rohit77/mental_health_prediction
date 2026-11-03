@@ -185,34 +185,49 @@ function collect() {
 }
 
 /* ---------- 5. API CALL ---------- */
+/** POST the payload. Retries once after a network failure (e.g. server restarting). */
+async function callApi(payload) {
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    const ctrl = new AbortController(), to = setTimeout(() => ctrl.abort(), 60000);
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload), signal: ctrl.signal, cache: 'no-store',
+      });
+      if (!res.ok) {
+        let detail = ''; try { detail = JSON.stringify((await res.json()).detail); } catch (_) {}
+        const err = new Error(`The server returned ${res.status}. ${detail}`); err.http = true; throw err;
+      }
+      return await res.json();
+    } catch (err) {
+      console.error(`Predict attempt ${attempt} failed:`, err);   // visible in F12 > Console
+      if (err.http || attempt === 2) throw err;
+      await new Promise(r => setTimeout(r, 4000));                // wait, then retry once
+    } finally { clearTimeout(to); }
+  }
+}
+
 form.addEventListener('submit', async e => {
   e.preventDefault();
   const payload = collect();
   if (!payload) return;
 
   show('loading');
-  const msgs = ['Preparing your data', 'Sending to the model', 'Calculating your score'];
+  const msgs = ['Preparing your data', 'Sending to the model', 'Waking the server if it was asleep', 'Calculating your score'];
   let i = 0; const timer = setInterval(() => $('#loadMsg').textContent = msgs[++i % msgs.length], 1100);
 
+  let data;
   try {
-    const ctrl = new AbortController(), to = setTimeout(() => ctrl.abort(), 20000);
-    const [res] = await Promise.all([
-      fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: ctrl.signal }),
-      new Promise(r => setTimeout(r, 1800)),   // keep the loading screen visible long enough to read
-    ]);
-    clearTimeout(to);
-    if (!res.ok) {
-      let detail = ''; try { detail = JSON.stringify((await res.json()).detail); } catch (_) {}
-      throw new Error(`The server returned ${res.status}. ${detail}`);
-    }
-    renderResult(await res.json(), payload);
+    [data] = await Promise.all([callApi(payload), new Promise(r => setTimeout(r, 1800))]);
   } catch (err) {
-    const offline = err.name === 'AbortError' || err instanceof TypeError;
-    showError(offline
-      ? 'Could not reach the prediction server at ' + API_URL + '. Check that FastAPI is running and CORS is enabled, then try again.'
-      : err.message);
+    showError(err.http ? err.message
+      : 'Could not reach the prediction server at ' + API_URL + '. It may be restarting. Wait a few seconds and try again.');
     show('form');
+    return;
   } finally { clearInterval(timer); }
+
+  try { renderResult(data, payload); }       // kept separate so a display bug is never reported as a network error
+  catch (err) { console.error(err); showError('Got a result but could not display it: ' + err.message); show('form'); }
 });
 
 /* ---------- 6. RESULTS ---------- */
